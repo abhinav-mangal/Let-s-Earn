@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:lets_earn/Screens/signin_screen.dart';
-import 'package:lets_earn/constants.dart';
+import 'package:get/get.dart';
+import 'package:lets_earn/Constants/constants.dart';
 
-class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
+import '../Controller/signUp_controller.dart';
 
-  @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
-}
-
-class _SignUpScreenState extends State<SignUpScreen> {
-  final TextEditingController _name = TextEditingController();
-  final TextEditingController _phoneNumber = TextEditingController();
-  final TextEditingController _password = TextEditingController();
-  final TextEditingController _referalCode = TextEditingController();
-
+class SignUpScreen extends StatelessWidget {
+  SignUpScreen({Key? key}) : super(key: key);
+  final signUpController = Get.put(SignUpController());
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -49,51 +41,67 @@ class _SignUpScreenState extends State<SignUpScreen> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
         ),
         const SizedBox(height: 5),
-        Text(
-          "Alredy have one? Log in here",
-          style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: Constants.primaryColor),
+        GestureDetector(
+          onTap: () => Get.toNamed("/SignInScreen"),
+          child: Text(
+            "Alredy have one? Log in here",
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: Constants.primaryColor),
+          ),
         ),
         const SizedBox(height: 15),
-        _textField(title: "Name", controller: _name),
-        _textField(title: "Phone Number", controller: _phoneNumber),
-        _textField(title: "Password", obscureText: true, controller: _password),
-        _textField(title: "Referal Code", controller: _referalCode),
+        _textField(title: "Name", controller: signUpController.name),
+        _textField(
+            title: "Phone Number", controller: signUpController.phoneNumber, keyboardType: TextInputType.phone),
+        _textField(
+            title: "Password",
+            obscureText: true,
+            controller: signUpController.password, keyboardType: TextInputType.visiblePassword),
+        _textField(
+            title: "Referal Code", controller: signUpController.referralCode),
       ],
     );
   }
 
   Widget _footer() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30),
-      child: Row(
-        children: [
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SignInScreen()));
-              },
-              style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all(Constants.primaryColor),
-                  minimumSize: MaterialStateProperty.all(const Size(0, 50))),
-              child: const Text(
-                "Sign up",
-                style: TextStyle(color: Colors.black, fontSize: 18),
+    return Obx(() => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => signUpController.signUp(),
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Constants.primaryColor),
+                      minimumSize:
+                          MaterialStateProperty.all(const Size(0, 50))),
+                  child: signUpController.isLoading.value
+                      ? const SizedBox(
+                          height: 16.0,
+                          width: 16.0,
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text(
+                          "Sign up",
+                          style: TextStyle(color: Colors.black, fontSize: 18),
+                        ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 
   Widget _textField(
       {required TextEditingController controller,
       required String title,
+      TextInputType? keyboardType,
       bool obscureText = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -109,6 +117,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           TextFormField(
             controller: controller,
             obscureText: obscureText,
+            keyboardType: keyboardType,
             decoration: InputDecoration(
               isDense: true,
               border: InputBorder.none,

@@ -3,7 +3,7 @@ import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:get/instance_manager.dart';
 import 'package:lets_earn/Controller/signIn_controller.dart';
-import 'package:lets_earn/constants.dart';
+import 'package:lets_earn/Constants/constants.dart';
 
 class SignInScreen extends StatelessWidget {
   SignInScreen({Key? key}) : super(key: key);
@@ -44,20 +44,38 @@ class SignInScreen extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
           ),
           const SizedBox(height: 5),
-          Text(
-            "Still new here? Create new accout",
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: Constants.primaryColor),
+          GestureDetector(
+            onTap: () => Get.toNamed("/SignUpScreen"),
+            child: Text(
+              "Still new here? Create new accout",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: Constants.primaryColor),
+            ),
           ),
           const SizedBox(height: 15),
           _textField(
-              title: "Phone Number", controller: signInController.phoneNumber),
-          _textField(
-              title: "Password",
-              obscureText: true,
-              controller: signInController.password),
+              title: "Phone Number",
+              controller: signInController.phoneNumber,
+              keyboardType: TextInputType.phone),
+          Obx(
+            () => _textField(
+                title: "Password",
+                obscureText: signInController.isVisible.value,
+                controller: signInController.password,
+                suffixIcon: IconButton(
+                    onPressed: () {
+                      if (signInController.isVisible.value == false) {
+                        signInController.isVisible.value = true;
+                      } else if (signInController.isVisible.value == true) {
+                        signInController.isVisible.value = false;
+                      }
+                    },
+                    icon: signInController.isVisible.value == true
+                        ? const Icon(Icons.visibility_outlined)
+                        : const Icon(Icons.visibility_off_outlined))),
+          ),
           const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -118,6 +136,8 @@ class SignInScreen extends StatelessWidget {
   Widget _textField(
       {required TextEditingController controller,
       required String title,
+      Widget? suffixIcon,
+      TextInputType? keyboardType,
       bool obscureText = false}) {
     return Column(
       children: [
@@ -131,22 +151,23 @@ class SignInScreen extends StatelessWidget {
         TextFormField(
           controller: controller,
           obscureText: obscureText,
+          keyboardType: keyboardType,
           decoration: InputDecoration(
-            isDense: true,
-            border: InputBorder.none,
-            enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
-                borderSide: const BorderSide(width: 2)),
-            disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
-                borderSide: const BorderSide(width: 2)),
-            errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
-                borderSide: const BorderSide(width: 2, color: Colors.red)),
-            focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
-                borderSide: const BorderSide(width: 2)),
-          ),
+              isDense: true,
+              border: InputBorder.none,
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: const BorderSide(width: 2)),
+              disabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: const BorderSide(width: 2)),
+              errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: const BorderSide(width: 2, color: Colors.red)),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: const BorderSide(width: 2)),
+              suffixIcon: suffixIcon),
         ),
       ],
     );
