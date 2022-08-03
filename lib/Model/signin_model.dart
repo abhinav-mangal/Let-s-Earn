@@ -19,8 +19,8 @@ class SignInModel {
 
     bool status;
     String message;
-    String userId;
-    String userPhone;
+    String? userId;
+    String? userPhone;
 
     factory SignInModel.fromJson(Map<String, dynamic> json) => SignInModel(
         status: json["status"] == null ? null : json["status"],

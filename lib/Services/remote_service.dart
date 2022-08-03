@@ -17,4 +17,16 @@ class RemoteService {
       return null;
     }
   }
+  static Future get({required String key}) async {
+  String baseUrl = "https://letsearn.online/account/api/";
+    var response = await client
+        .post(Uri.parse(baseUrl+key));
+
+    if (response.statusCode == 200) {
+      var data = response.body;
+      return data;
+    } else {
+      return null;
+    }
+  }
 }

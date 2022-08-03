@@ -12,7 +12,6 @@ class SignUpScreen extends StatelessWidget {
     return Container(
       decoration: Constants.decoration,
       child: Scaffold(
-        backgroundColor: Colors.transparent,
         body: SingleChildScrollView(
           child: Column(
             children: [

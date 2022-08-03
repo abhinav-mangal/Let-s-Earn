@@ -1,5 +1,3 @@
-// ignore_for_file: file_names
-
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_rx/get_rx.dart';
@@ -21,7 +19,7 @@ class SignInController extends GetxController {
       var value = await RemoteService.post(key: "login", body: body);
       var data = signInModelFromJson(value);
       if (data.status == true) {
-        Get.toNamed("/SignUpScreen");
+        Get.offAndToNamed("/TabBarController");
       } else {
         Get.snackbar("Message", data.message,
             barBlur: 0, snackPosition: SnackPosition.BOTTOM);
