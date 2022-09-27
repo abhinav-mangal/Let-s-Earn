@@ -7,18 +7,25 @@ import 'package:lets_earn/Screens/records_screen.dart';
 import 'package:lets_earn/Screens/task_screen.dart';
 
 class TabBarController extends StatefulWidget {
-  const TabBarController({Key? key}) : super(key: key);
+  final int? index;
+  const TabBarController({Key? key, this.index = 0}) : super(key: key);
 
   @override
   State<TabBarController> createState() => _TabBarControllerState();
 }
 
 class _TabBarControllerState extends State<TabBarController> {
-  int currentIndex = 0;
+  @override
+  void initState() {
+    currentIndex = widget.index;
+    super.initState();
+  }
+
+  int? currentIndex;
   final screens = [
-    const HomeScreen(),
-    const TaskScreen(),
-    const MemberShipScreen(),
+    HomeScreen(),
+    TaskScreen(),
+    MemberShipScreen(),
     const RecordsScreen(),
     const ProfileScreen(),
   ];
@@ -28,9 +35,9 @@ class _TabBarControllerState extends State<TabBarController> {
     return Container(
       decoration: Constants.decoration,
       child: Scaffold(
-        body: screens[currentIndex],
+        body: screens[currentIndex!],
         bottomNavigationBar: BottomNavigationBar(
-          currentIndex: currentIndex,
+          currentIndex: currentIndex!,
           onTap: (index) => setState(() => currentIndex = index),
           // backgroundColor: Colors.red,
           type: BottomNavigationBarType.fixed,

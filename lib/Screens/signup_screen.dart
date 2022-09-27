@@ -4,9 +4,18 @@ import 'package:lets_earn/Constants/constants.dart';
 
 import '../Controller/signUp_controller.dart';
 
-class SignUpScreen extends StatelessWidget {
-  SignUpScreen({Key? key}) : super(key: key);
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({Key? key}) : super(key: key);
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
   final signUpController = Get.put(SignUpController());
+  final _formKey = GlobalKey<FormState>();
+  bool _isVisible = false;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -33,34 +42,88 @@ class SignUpScreen extends StatelessWidget {
   }
 
   Widget _body() {
-    return Column(
-      children: [
-        const Text(
-          "Let's earn",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
-        ),
-        const SizedBox(height: 5),
-        GestureDetector(
-          onTap: () => Get.toNamed("/SignInScreen"),
-          child: Text(
-            "Alredy have one? Log in here",
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: Constants.primaryColor),
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          const Text(
+            "Let's earn",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
           ),
-        ),
-        const SizedBox(height: 15),
-        _textField(title: "Name", controller: signUpController.name),
-        _textField(
-            title: "Phone Number", controller: signUpController.phoneNumber, keyboardType: TextInputType.phone),
-        _textField(
+          const SizedBox(height: 5),
+          GestureDetector(
+            onTap: () => Get.toNamed("/SignInScreen"),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text(
+                  "Alredy have one? ",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: Colors.black54),
+                ),
+                Text(
+                  "Log in here",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: Colors.blue),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 15),
+          _textField(
+            title: "Name",
+            controller: signUpController.name,
+            validator: (v) {
+              if (v!.isEmpty) {
+                return "Enter your Name";
+              } else {
+                return null;
+              }
+            },
+          ),
+          _textField(
+              title: "Phone Number",
+              controller: signUpController.phoneNumber,
+              keyboardType: TextInputType.phone,
+              validator: (v) {
+                if (v!.length != 10) {
+                  return "Enter a 10 digit phone number";
+                } else {
+                  return null;
+                }
+              }),
+          _textField(
             title: "Password",
-            obscureText: true,
-            controller: signUpController.password, keyboardType: TextInputType.visiblePassword),
-        _textField(
-            title: "Referal Code", controller: signUpController.referralCode),
-      ],
+            obscureText: _isVisible,
+            controller: signUpController.password,
+            keyboardType: TextInputType.visiblePassword,
+            suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() {
+                    _isVisible = !_isVisible;
+                  });
+                },
+                icon: _isVisible == true
+                    ? const Icon(Icons.visibility_outlined)
+                    : const Icon(Icons.visibility_off_outlined)),
+            validator: (v) {
+              if (v!.isEmpty) {
+                return "Enter your Password";
+              } else {
+                return null;
+              }
+            },
+          ),
+          _textField(
+            title: "Referal Code",
+            controller: signUpController.referralCode,
+          ),
+        ],
+      ),
     );
   }
 
@@ -71,7 +134,11 @@ class SignUpScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () => signUpController.signUp(),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      signUpController.signUp();
+                    }
+                  },
                   style: ButtonStyle(
                       backgroundColor:
                           MaterialStateProperty.all(Constants.primaryColor),
@@ -101,6 +168,8 @@ class SignUpScreen extends StatelessWidget {
       {required TextEditingController controller,
       required String title,
       TextInputType? keyboardType,
+      String? Function(String?)? validator,
+      Widget? suffixIcon,
       bool obscureText = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -117,6 +186,8 @@ class SignUpScreen extends StatelessWidget {
             controller: controller,
             obscureText: obscureText,
             keyboardType: keyboardType,
+            validator: validator,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             decoration: InputDecoration(
               isDense: true,
               border: InputBorder.none,
@@ -126,12 +197,16 @@ class SignUpScreen extends StatelessWidget {
               disabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
                   borderSide: const BorderSide(width: 2)),
+              focusedErrorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: const BorderSide(width: 2, color: Colors.red)),
               errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
                   borderSide: const BorderSide(width: 2, color: Colors.red)),
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
                   borderSide: const BorderSide(width: 2)),
+              suffixIcon: suffixIcon,
             ),
           ),
         ],

@@ -1,53 +1,59 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:lets_earn/Constants/constants.dart';
-import 'package:lets_earn/Model/banner_model.dart';
-import 'package:lets_earn/Services/remote_service.dart';
+import 'package:lets_earn/Controller/home_controller.dart';
+import 'package:lets_earn/Controller/task_controller.dart';
+import 'package:lets_earn/Model/achivements_model.dart';
+import 'package:lets_earn/tab_bar_controller.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+import '../Constants/Widgets/Button.dart';
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
+// ignore: must_be_immutable
+class HomeScreen extends StatelessWidget {
+  HomeScreen({Key? key}) : super(key: key);
+  final homeController = Get.put(HomeController());
+  final controller = Get.put(TaskController());
   List<String>? items;
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    getBanner();
-    super.initState();
-  }
-
-  Future getBanner() async {
-    var data = await RemoteService.get(key: "banner");
-    BannerModel banner = bannerModelFromJson(data);
-    items = banner.banner;
-    setState(() => isLoading = false);
-  }
+  List<AchievementsList> achivements = [];
+  List<String> refferal = [];
+  String refferalMessage = "";
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              _header(),
-              const SizedBox(height: 20),
-              isLoading == true
-                  ? const CircularProgressIndicator()
-                  : _carouselSlider(),
-              const SizedBox(height: 20),
-              _body(),
-              _footer(),
-              const SizedBox(height: 20),
-            ],
-          ),
+    return Container(
+      decoration: Constants.decoration,
+      child: Scaffold(
+        body: SafeArea(
+          child: Obx(() {
+            bool isLoading = homeController.isLoading.value;
+            items = homeController.banner;
+            achivements = homeController.achivements;
+            refferal = homeController.refferal;
+            refferalMessage = homeController.refferalMessage.string;
+            return isLoading == true
+                ? const Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    onRefresh: () => homeController.getEarnings(),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 20),
+                          _header(),
+                          const SizedBox(height: 20),
+                          _carouselSlider(),
+                          const SizedBox(height: 20),
+                          _body(context),
+                          _footer(),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  );
+          }),
         ),
       ),
     );
@@ -73,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  "Rs. 199.00",
+                  homeController.totalEarnings.string,
                   style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -97,40 +103,54 @@ class _HomeScreenState extends State<HomeScreen> {
       options: CarouselOptions(
         enlargeCenterPage: true,
         viewportFraction: 1,
+        autoPlay: true,
         autoPlayCurve: Curves.fastOutSlowIn,
       ),
     );
   }
 
-  Widget _body() {
+  Widget _body(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
           Row(
             children: [
-              _button(title: "Buy now"),
+              CustButton(
+                title: "Add Money",
+                onPressed: () => Get.toNamed("/PurchaseScreen"),
+              ),
               const SizedBox(width: 16),
-              _button(title: "Withdraw"),
+              CustButton(
+                  title: "Withdraw",
+                  onPressed: () => Get.toNamed("/WidrawScreen")),
             ],
           ),
           const SizedBox(height: 10),
           _socialButton(
               title: "Youtube",
               titleColor: Colors.red,
-              icon: const Icon(
-                FontAwesomeIcons.youtube,
-                color: Colors.red,
-                size: 50,
-              )),
+              icon: const Icon(FontAwesomeIcons.youtube,
+                  color: Colors.red, size: 50),
+              onTap: () => Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const TabBarController(index: 1)),
+                  (Route<dynamic> route) => false)),
           _socialButton(
               title: "Instagram",
               titleColor: Constants.instagram,
-              icon: Icon(
-                FontAwesomeIcons.instagramSquare,
-                color: Constants.instagram,
-                size: 50,
-              )),
+              icon: Icon(FontAwesomeIcons.instagramSquare,
+                  color: Constants.instagram, size: 50),
+              onTap: () => Get.defaultDialog(
+                  title: "Coming Soon",
+                  content: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "Hang thight! this feature is yet to launch",
+                      textAlign: TextAlign.center,
+                    ),
+                  ))),
           _socialButton(
               title: "Facebook",
               titleColor: Constants.facebook,
@@ -138,13 +158,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 FontAwesomeIcons.facebookSquare,
                 color: Constants.facebook,
                 size: 50,
-              )),
+              ),
+              onTap: () => Get.defaultDialog(
+                  title: "Coming Soon",
+                  content: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "Hang thight! this feature is yet to launch",
+                      textAlign: TextAlign.center,
+                    ),
+                  ))),
           const SizedBox(height: 10),
-          _inviteFriends(),
+          _inviteFriends(context),
           const SizedBox(height: 20),
-          isLoading == true
-              ? const CircularProgressIndicator()
-              : Image.network(items![0]),
+          InkWell(
+            onTap: () {
+              Get.toNamed("/InvestmentScreen");
+            },
+            child: Image.asset("assets/investment.png"),
+          ),
           const SizedBox(height: 20),
         ],
       ),
@@ -170,28 +202,35 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8), color: Colors.white),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: 5,
-              itemBuilder: (BuildContext context, int index) {
-                return Column(
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.person),
+            child: CarouselSlider(
+              options: CarouselOptions(
+                height: Get.height * .650,
+                viewportFraction: 0.12,
+                scrollDirection: Axis.vertical,
+                autoPlay: true,
+                reverse: true,
+              ),
+              items: achivements.map((i) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage: NetworkImage(i.image),
+                      ),
                       title: const Text("Congrates",
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold)),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("****96547"),
+                          Text(i.name),
                           Row(
-                            children: const [
-                              Text("Current level:-"),
+                            children: [
+                              const Text("Current level:-"),
+                              const SizedBox(width: 5),
                               Text(
-                                "VIP7",
-                                style: TextStyle(
+                                "VIP${i.vipNo}",
+                                style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.red),
                               ),
@@ -202,43 +241,102 @@ class _HomeScreenState extends State<HomeScreen> {
                       trailing: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
-                        children: const [
-                          Text("+4000",
-                              style: TextStyle(
+                        children: [
+                          Text("+${i.amount}",
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.red,
                               )),
-                          Text("Today's earning",
+                          const Text("Today's earning",
                               style: TextStyle(
                                 color: Colors.red,
                               )),
                         ],
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 );
-              },
+              }).toList(),
             ),
-          )
+          ),
+          // Container(
+          //   decoration: BoxDecoration(
+          //       borderRadius: BorderRadius.circular(8), color: Colors.white),
+          //   child: ListView.builder(
+          //     shrinkWrap: true,
+          //     physics: const NeverScrollableScrollPhysics(),
+          //     itemCount: achivements.length,
+          //     itemBuilder: (BuildContext context, int index) {
+          //       return Column(
+          //         children: [
+          //           ListTile(
+          //             leading: CircleAvatar(
+          //               backgroundImage: NetworkImage(achivements[index].image),
+          //             ),
+          //             title: const Text("Congrates",
+          //                 style: TextStyle(
+          //                     fontSize: 16, fontWeight: FontWeight.bold)),
+          //             subtitle: Column(
+          //               crossAxisAlignment: CrossAxisAlignment.start,
+          //               children: [
+          //                 Text(achivements[index].name),
+          //                 Row(
+          //                   children: [
+          //                     const Text("Current level:-"),
+          //                     const SizedBox(width: 5),
+          //                     Text(
+          //                       "VIP${achivements[index].vipNo}",
+          //                       style: const TextStyle(
+          //                           fontWeight: FontWeight.bold,
+          //                           color: Colors.red),
+          //                     ),
+          //                   ],
+          //                 ),
+          //               ],
+          //             ),
+          //             trailing: Column(
+          //               mainAxisAlignment: MainAxisAlignment.center,
+          //               crossAxisAlignment: CrossAxisAlignment.end,
+          //               children: [
+          //                 Text("+${achivements[index].amount}",
+          //                     style: const TextStyle(
+          //                       fontWeight: FontWeight.bold,
+          //                       color: Colors.red,
+          //                     )),
+          //                 const Text("Today's earning",
+          //                     style: TextStyle(
+          //                       color: Colors.red,
+          //                     )),
+          //               ],
+          //             ),
+          //           ),
+          //         ],
+          //       );
+          //     },
+          //   ),
+          // )
         ],
       ),
     );
   }
 
-  Widget _inviteFriends() {
+  Widget _inviteFriends(context) {
     return Row(
       children: [
         Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Constants.accentBlue),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Center(
-                child: Text(
-                  "Invite Your Friends",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+          child: InkWell(
+            onTap: () => showAlertDialog(context),
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Constants.accentBlue),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: Text(
+                    "Invite Your Friends",
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+                  ),
                 ),
               ),
             ),
@@ -248,8 +346,51 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  showAlertDialog(BuildContext context) {
+    // set up the buttons
+    Widget shareButton = TextButton(
+      child: const Text("Share"),
+      onPressed: () {
+        FlutterShare.share(
+            title: "Refferal Code", text: "${refferal[0]}\n\n$refferalMessage");
+      },
+    );
+    Widget cancelButton = TextButton(
+      child: const Text("Cancel"),
+      onPressed: () => Get.back(),
+    );
+    Widget continueButton = TextButton(
+        child: const Text("Copy"),
+        onPressed: () => Clipboard.setData(ClipboardData(text: refferal[0]))
+            .then((value) => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Refferal Code coppied"))))
+            .then((value) => Get.back()));
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Refferal Code"),
+      content: SelectableText("Your refferal code: ${refferal[0]}"),
+      actions: [
+        cancelButton,
+        shareButton,
+        // continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   Padding _socialButton(
-      {required Widget icon, required String title, Color? titleColor}) {
+      {required Widget icon,
+      required String title,
+      Color? titleColor,
+      void Function()? onTap}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Container(
@@ -258,6 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(8), color: Colors.white),
         child: ListTile(
           dense: true,
+          onTap: onTap,
           contentPadding: EdgeInsets.zero,
           leading: icon,
           title: Center(
@@ -268,32 +410,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _button(
-      {required String title,
-      void Function()? onPressed,
-      bool isLoading = false}) {
-    return Expanded(
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(Constants.yellow),
-            minimumSize: MaterialStateProperty.all(const Size(0, 50))),
-        child: isLoading
-            ? const SizedBox(
-                height: 16.0,
-                width: 16.0,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Text(
-                title,
-                style: const TextStyle(color: Colors.black, fontSize: 18),
-              ),
       ),
     );
   }

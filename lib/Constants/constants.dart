@@ -8,6 +8,7 @@ class Constants {
   static Color instagram = const Color(0xFFEC459C);
   static Color facebook = const Color(0xFF1F449C);
   static Color accentBlue = const Color(0xFF45B6F8);
+  static Color mildBlue = const Color(0xFF9CDBFB);
 
   static Decoration decoration = BoxDecoration(
       gradient: LinearGradient(
