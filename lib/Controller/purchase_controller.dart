@@ -68,13 +68,10 @@ class PurchaseController extends GetxController {
       Get.defaultDialog(
           title: "Message",
           content: Text(response["message"]),
-          cancel:
-              TextButton(onPressed: () => Get.back(), child: const Text("ok")));
+          cancel: TextButton(
+              onPressed: () => Get.offAllNamed("/TabBarController"),
+              child: const Text("ok")));
       isBTLoading(false);
-      Get.offAll("/TabBarController");
-      // Get.snackbar("Message", response["message"],
-      //     snackPosition: SnackPosition.TOP,
-      //     backgroundColor: Constants.lightBlue);
     } else {
       isLoading(false);
       // User canceled the picker

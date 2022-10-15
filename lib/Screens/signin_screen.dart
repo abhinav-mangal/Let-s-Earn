@@ -99,7 +99,13 @@ class SignInScreen extends StatelessWidget {
             const SizedBox(height: 5),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: const [Text("Forgot Password?")],
+              children: [
+                TextButton(
+                    onPressed: () {
+                      Get.toNamed("/ForgotPasswordScreen");
+                    },
+                    child: const Text("Forgot Password?"))
+              ],
             )
           ],
         ),

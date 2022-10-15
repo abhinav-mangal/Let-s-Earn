@@ -14,12 +14,14 @@ class SignUpController extends GetxController {
   TextEditingController phoneNumber = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController referralCode = TextEditingController();
+  TextEditingController email = TextEditingController();
   var isLoading = false.obs;
 
   void signUp() async {
     final prefs = await SharedPreferences.getInstance();
     Map body = {
       "name": name.text,
+      "email": email.text,
       "phone": phoneNumber.text,
       "password": password.text,
       "referral_code": referralCode.text,

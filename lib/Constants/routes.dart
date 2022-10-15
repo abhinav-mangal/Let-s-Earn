@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:lets_earn/Screens/Investment_screen.dart';
 import 'package:lets_earn/Screens/%20purchase_screen.dart';
 import 'package:lets_earn/Screens/bank_details_screen.dart';
+import 'package:lets_earn/Screens/forgot_password_screen.dart';
 import 'package:lets_earn/Screens/help_centre_screen.dart';
 import 'package:lets_earn/Screens/home_screen.dart';
 import 'package:lets_earn/Screens/income_expenditure_screen.dart';
@@ -44,5 +45,6 @@ class Routes {
     GetPage(name: '/ProfileDetailsScreen', page: () => ProfileDetailsScreen()),
     GetPage(name: '/InfoScreen', page: () => InfoScreen()),
     GetPage(name: '/ReferRewards', page: () => const ReferRewards()),
+    GetPage(name: '/ForgotPasswordScreen', page: () => const ForgotPasswordScreen()),
   ];
 }

@@ -75,6 +75,15 @@ class WidrawScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                  ),
+                  const SizedBox(height: 50),
+                  const Padding(
+                    padding: EdgeInsets.all(30),
+                    child: Text(
+                      "Note: Minimum withdrawal limit is 100rs and withdrawal after the membership is purchased.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   )
                 ],
               ),

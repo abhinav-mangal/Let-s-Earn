@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lets_earn/Constants/constants.dart';
-
-import '../Controller/signUp_controller.dart';
+import 'package:lets_earn/Controller/signup_controller.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -12,7 +11,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final signUpController = Get.put(SignUpController());
+  SignUpController signUpController = Get.put(SignUpController());
   final _formKey = GlobalKey<FormState>();
   bool _isVisible = false;
 
@@ -80,6 +79,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
             validator: (v) {
               if (v!.isEmpty) {
                 return "Enter your Name";
+              } else {
+                return null;
+              }
+            },
+          ),
+          _textField(
+            title: "Email",
+            controller: signUpController.email,
+            validator: (v) {
+              if (v!.isEmpty || !v.isEmail) {
+                return "Enter your Email";
               } else {
                 return null;
               }

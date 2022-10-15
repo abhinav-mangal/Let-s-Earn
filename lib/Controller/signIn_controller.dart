@@ -22,7 +22,7 @@ class SignInController extends GetxController {
       var value = await RemoteService.post(key: "login", body: body);
       var data = signInModelFromJson(value);
       if (data.status == true) {
-        await prefs.setString("userContact", phoneNumber.text);
+        // await prefs.setString("userContact", phoneNumber.text);
         await prefs.setString("uId", data.userId!);
         Get.offAllNamed("/TabBarController");
       } else {

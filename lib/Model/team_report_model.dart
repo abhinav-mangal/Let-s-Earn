@@ -2,7 +2,6 @@
 //
 //     final teamReportModel = teamReportModelFromJson(jsonString);
 
-import 'package:meta/meta.dart';
 import 'dart:convert';
 
 TeamReportModel teamReportModelFromJson(String str) =>
@@ -97,7 +96,7 @@ class Level1 {
   dynamic email;
   String phone;
   String level;
-  String balance;
+  dynamic balance;
   dynamic topUp;
 
   factory Level1.fromJson(Map<String, dynamic> json) => Level1(
